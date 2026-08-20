@@ -1,3 +1,4 @@
 export(query_gene)
 export(get_top_monopoly)
+export(plot_gene)
 export(launch_shiny)
