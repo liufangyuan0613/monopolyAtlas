@@ -1,1 +1,2 @@
-library(testthat); library(monopolyAtlas); test_check("monopolyAtlas")
+library(testthat)
+test_check("monopolyAtlas")
