@@ -1,0 +1,12 @@
+Package: monopolyAtlas
+Type: Package
+Title: Transcriptomic Monopoly Atlas
+Version: 1.0.0
+Authors@R: c(person("Fangyuan","Liu",email="liufangyuan1989@126.com",role=c("aut","cre")))
+Description: Interactive query and visualization for transcriptomic monopoly genes.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 4.0)
+Imports: shiny, ggplot2, plotly, DT, data.table
+Suggests: remotes
