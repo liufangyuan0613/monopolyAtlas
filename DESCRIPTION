@@ -7,6 +7,7 @@ Description: Interactive query and visualization for transcriptomic monopoly gen
 License: MIT
 Encoding: UTF-8
 LazyData: true
+LazyDataCompression: xz
 Depends: R (>= 4.0)
 Imports: shiny, ggplot2, plotly, DT, data.table
 Suggests: remotes
