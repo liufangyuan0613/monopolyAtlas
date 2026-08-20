@@ -1,0 +1,3 @@
+export(query_gene)
+export(get_top_monopoly)
+export(launch_shiny)
