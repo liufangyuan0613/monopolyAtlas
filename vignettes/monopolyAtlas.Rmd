@@ -1,0 +1,16 @@
+---
+title: "Monopoly Atlas Quick Start"
+author: "Fangyuan Liu"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Quick Start}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+library(monopolyAtlas)
+set.seed(42); m <- matrix(runif(1000*50), nrow=1000)
+rownames(m) <- paste0("Gene", 1:1000)
+colnames(m) <- paste0("Sample", 1:50)
+result <- score_monopoly(m, k_top=5)
+print(result); plot(result)
+data("monopoly_atlas"); query_gene("EEF1A1"); plot_gene("EEF1A1")
