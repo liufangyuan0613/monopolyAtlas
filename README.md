@@ -27,8 +27,8 @@ plot_carrier_matrix(atlas_gene_cancer[atlas_gene_cancer$mono_freq > 0, ])
 plot_headroom(headroom_df, perm_null = my_null)
 card <- plot_gene_card("WFDC2"); card$demand_plot
 
-# 4) 交互式 atlas
-launch_shiny()
+# 4) 补充图一键导出 (PDF+PNG)
+export_pdf(plot_headroom(headroom_df), "fig4_headroom")
 ```
 
 ## Function map
@@ -44,6 +44,7 @@ launch_shiny()
 | MEANING | `plot_pathway_atlas` | Fig6 |
 | BOUNDARY | `plot_dependency_boundary` | Fig7 |
 | Theme | `theme_monopoly` `monopoly_palette` | 全部 |
+| Extensions | `export_pdf` `simulate_share_null` `carrier_dominance` `morans_i_perm` | 出图纪律 / 零模型 / Fig3 scRNA / 空间 |
 
 ## Data shipped
 

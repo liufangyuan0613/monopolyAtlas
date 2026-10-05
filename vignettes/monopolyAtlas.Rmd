@@ -53,8 +53,13 @@ card <- plot_gene_card("WFDC2")
 card$demand_plot; card$cancer_plot
 ```
 
-## 4. Interactive atlas
+## 4. 出图导出
+
+每个 panel 单独导出 PDF + PNG（项目图件纪律）:
 
 ```{r, eval=FALSE}
-launch_shiny()
+h <- plot_headroom(data.frame(cancer = atlas_cancer$cancer,
+                              baseline = atlas_cancer$tmi5_median,
+                              mono_rate = atlas_cancer$mono_rate))
+export_pdf(h, "fig4_headroom")
 ```

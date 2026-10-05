@@ -15,7 +15,7 @@ LazyData: true
 LazyDataCompression: xz
 Depends: R (>= 4.1)
 Imports: ggplot2, stats, utils, methods, Matrix, data.table, rlang
-Suggests: ComplexHeatmap, shiny, plotly, DT, testthat (>= 3.0), knitr, rmarkdown, pkgdown, rcmdcheck
+Suggests: ComplexHeatmap, testthat (>= 3.0), knitr, rmarkdown, pkgdown, rcmdcheck
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 RoxygenNote: 7.3.3

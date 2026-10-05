@@ -1,29 +1,22 @@
-== [1/4] 构建 atlas 数据 ==
-atlas data built: 74 genes, 2368 gene-cancer rows, 3848 demand rows
+== [1/3] roxygen ==
 
-== [2/4] 安装包 ==
+== [2/3] 安装 ==
 ── R CMD build ─────────────────────────────────────────────────────────────────
-* checking for file 'C:\Users\liufa\AppData\Local\Temp\RtmpwNflSG\file1284440f6732b\monopolyAtlas/DESCRIPTION' ... OK
+* checking for file 'C:\Users\liufa\AppData\Local\Temp\Rtmp08eAld\file154c26e94187\monopolyAtlas/DESCRIPTION' ... OK
 * preparing 'monopolyAtlas':
 * checking DESCRIPTION meta-information ... OK
 * checking for LF line-endings in source and make files and shell scripts
 * checking for empty or unneeded directories
-Removed empty directory 'monopolyAtlas/inst/shiny/data'
+Removed empty directory 'monopolyAtlas/inst'
 * building 'monopolyAtlas_3.0.0.tar.gz'
 
 
-== [3/4] testthat ==
+== [3/3] testthat ==
 atlas: .............
 compute: ........
+extensions: ...........
 plots: ...........
 
 ══ DONE ════════════════════════════════════════════════════════════════════════
-HA - sublime code.
-
-== [4/4] 快速功能核验 ==
-WFDC2: cancer_specific Defense-secreted 
-gene_card OK: gg 
-headroom OK: gg 
-pdf exported
 
 总耗时: 0.3 min
