@@ -45,6 +45,8 @@ export_pdf(plot_headroom(headroom_df), "fig4_headroom")
 | BOUNDARY | `plot_dependency_boundary` | Fig7 |
 | Theme | `theme_monopoly` `monopoly_palette` | 全部 |
 | Extensions | `export_pdf` `simulate_share_null` `carrier_dominance` `morans_i_perm` | 出图纪律 / 零模型 / Fig3 scRNA / 空间 |
+| scRNA | `query_scrna` `plot_scrna_dominance` | Fig3 SOURCE 层 |
+| Version | `atlas_version` | 数据-手稿版本绑定 |
 
 ## Data shipped
 
@@ -52,6 +54,8 @@ export_pdf(plot_headroom(headroom_df), "fig4_headroom")
 - `atlas_gene_cancer` — 74 x 32 垄断频率 (严格管线口径; IGHG1xSKCM=0.625 锚点测试)
 - `atlas_cancer` — 32 癌种汇总 (n_mono / mono_rate / top carriers)
 - `atlas_demand` — 74 x 52 GTEx tissue expression percentile (WHERE 层)
+- `atlas_scrna` — 12 单细胞数据集 dataset x celltype 垄断摘要 (Fig3 层; LUAD 髓系 FTL 0.573 锚点)
+- `atlas_meta` — 数据版本声明 (`atlas_version()` 读取, 投稿可复现性绑定)
 
 ## Citation
 

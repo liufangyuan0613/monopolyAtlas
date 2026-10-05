@@ -70,9 +70,40 @@ dm <- fread(file.path(UP, "Fig5_WHICH/fig5D_demand_matrix.tsv.gz"))
 atlas_demand <- as.data.frame(dm[gene %in% G74, .(gene, tissue, pctile, med_tpm)])
 stopifnot(length(unique(atlas_demand$gene)) == 74)
 
+# ---- atlas_scrna: 12 单细胞数据集 dataset x celltype 垄断摘要 (Fig3 层) ----
+cells <- fread(file.path(UP, "Fig3_SOURCE/fig3_umap_all.tsv.gz"))
+G74v <- atlas_genes$gene
+cells[, is_carrier_top1 := top1 %in% G74v]
+cells[, is_ftl_top1 := top1 == "FTL"]
+sc <- cells[, .(n_cells = .N,
+                tmi5_median = median(TMI5, na.rm = TRUE),
+                carrier_top1_rate = mean(is_carrier_top1, na.rm = TRUE),
+                ftl_top1_rate = mean(is_ftl_top1, na.rm = TRUE),
+                malignant_frac = mean(malignant == TRUE, na.rm = TRUE)),
+            by = .(dataset, cell_type)]
+setorder(sc, dataset, -n_cells)
+atlas_scrna <- as.data.frame(sc)
+# 锚点硬断言: LUAD Myeloid/MAST ftl_top1_rate = 0.573 (fig3C 冻结值)
+# 注意: stopifnot 对空向量会静默通过——必须先断言行数
+anch <- atlas_scrna[atlas_scrna$dataset == "LUAD" & atlas_scrna$cell_type == "Myeloid/MAST", "ftl_top1_rate"]
+stopifnot(length(anch) == 1, abs(anch - 0.573) < 0.005)
+
+# ---- atlas_meta: 数据版本声明 ----
+atlas_meta <- list(
+  atlas_version = "v2026.10",
+  build_date = as.character(Sys.Date()),
+  manuscript = "mono_v2 (proof_jtm_v8 line, Cancer Research/Cell Reports target)",
+  n_genes = nrow(atlas_genes),
+  gene_split = c(cancer_specific = 36, tissue_shared = 38),
+  anchors = c("IGHG1xSKCM mono_freq=0.625", "LUAD Myeloid/MAST FTL top1=0.573"),
+  source_package = "E:/cancer_mg/mono_v2/data/upgrade (MANIFEST-registered)",
+  regenerate = "data-raw/build_atlas_data.R")
+
 save(atlas_genes, file = file.path(OUT, "atlas_genes.rda"), compress = "xz")
 save(atlas_cancer, file = file.path(OUT, "atlas_cancer.rda"), compress = "xz")
 save(atlas_gene_cancer, file = file.path(OUT, "atlas_gene_cancer.rda"), compress = "xz")
 save(atlas_demand, file = file.path(OUT, "atlas_demand.rda"), compress = "xz")
+save(atlas_scrna, file = file.path(OUT, "atlas_scrna.rda"), compress = "xz")
+save(atlas_meta, file = file.path(OUT, "atlas_meta.rda"), compress = "xz")
 cat("atlas data built:", nrow(atlas_genes), "genes,", nrow(atlas_gene_cancer), "gene-cancer rows,",
-    nrow(atlas_demand), "demand rows\n")
+    nrow(atlas_demand), "demand rows,", nrow(atlas_scrna), "scrna summary rows\n")
