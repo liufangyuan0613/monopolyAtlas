@@ -1,16 +1,21 @@
 Package: monopolyAtlas
 Type: Package
 Title: Transcriptomic Monopoly Analysis Framework
-Version: 2.0.0
-Authors@R: c(person("Fangyuan","Liu",email="liufangyuan1989@126.com",role=c("aut","cre")))
-Description: Compute transcriptomic monopoly scores (TMI, Gini, HHI) from expression matrices, query pan-cancer monopoly gene annotations, and visualize results.
+Version: 3.0.0
+Authors@R: c(person("Fangyuan", "Liu", email = "liufangyuan1989@126.com", role = c("aut", "cre")))
+Description: Compute transcriptomic monopoly metrics (TMI, top-share, Gini, HHI) from
+    bulk and single-cell expression matrices, query the pan-cancer monopoly atlas
+    (74 monopoly genes x 32 cancer types), and reproduce the visual language of the
+    transcriptomic-monopoly manuscript (STATE/CARRIER/WHERE/WHICH/MEANING/BOUNDARY).
 License: MIT + file LICENSE
 URL: https://github.com/liufangyuan0613/monopolyAtlas
+BugReports: https://github.com/liufangyuan0613/monopolyAtlas/issues
 Encoding: UTF-8
 LazyData: true
 LazyDataCompression: xz
-Depends: R (>= 4.0)
-Imports: data.table, ggplot2, stats
-Suggests: shiny, plotly, DT, testthat (>= 3.0), knitr, rmarkdown
+Depends: R (>= 4.1)
+Imports: ggplot2, stats, utils, methods, Matrix, data.table, rlang
+Suggests: ComplexHeatmap, shiny, plotly, DT, testthat (>= 3.0), knitr, rmarkdown, pkgdown, rcmdcheck
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+RoxygenNote: 7.3.3

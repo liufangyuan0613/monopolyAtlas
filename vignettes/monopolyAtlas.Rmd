@@ -1,16 +1,60 @@
 ---
-title: "Monopoly Atlas Quick Start"
+title: "monopolyAtlas v3: compute, query, and visualize transcriptomic monopoly"
 author: "Fangyuan Liu"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Quick Start}
+  %\VignetteIndexEntry{monopolyAtlas v3}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7, fig.height = 4.5)
 library(monopolyAtlas)
-set.seed(42); m <- matrix(runif(1000*50), nrow=1000)
-rownames(m) <- paste0("Gene", 1:1000)
-colnames(m) <- paste0("Sample", 1:50)
-result <- score_monopoly(m, k_top=5)
-print(result); plot(result)
-data("monopoly_atlas"); query_gene("EEF1A1"); plot_gene("EEF1A1")
+```
+
+## 1. Per-sample monopoly metrics
+
+Bulk 或 single-cell 表达矩阵 (genes x samples, 支持 dgCMatrix):
+
+```{r}
+set.seed(42)
+m <- matrix(rgamma(2000 * 60, shape = 0.5, rate = 0.2), nrow = 2000)
+rownames(m) <- c(paste0("Gene", 1:1990), paste0("RPL", 1:10))
+colnames(m) <- paste0("Sample", 1:60)
+tmi <- compute_tmi(m, k = 5)           # 管线口径: 排除 MT-/MTRNR/RPL/RPS
+st <- monopoly_status(tmi)             # 95 分位判定
+table(st)
+sc <- score_monopoly(m)
+head(sc$samples)
+```
+
+## 2. Query the atlas (74 monopoly genes)
+
+```{r}
+data("atlas_genes"); data("atlas_gene_cancer"); data("atlas_demand")
+query_gene("WFDC2")
+get_top_monopoly(5)
+```
+
+## 3. Manuscript visual language
+
+```{r, eval=FALSE}
+# Fig1 STATE
+plot_tmi_ridge(data.frame(sample = names(tmi), tmi5 = tmi,
+                          cohort = rep(c("A", "B"), length.out = 60)))
+# Fig2 CARRIER
+plot_carrier_matrix(atlas_gene_cancer[atlas_gene_cancer$mono_freq > 0, ])
+# Fig4 WHERE
+plot_headroom(atlas_cancer[, c("cancer", "tmi5_median", "mono_rate")] |>
+                setNames(c("cancer", "baseline", "mono_rate")))
+# 单基因卡片
+card <- plot_gene_card("WFDC2")
+card$demand_plot; card$cancer_plot
+```
+
+## 4. Interactive atlas
+
+```{r, eval=FALSE}
+launch_shiny()
+```
