@@ -13,11 +13,16 @@ compute_tmi(expr, k = 5, normalize = FALSE, exclude_technical = TRUE)
 
 \item{normalize}{library-size normalize to pseudo-CPM first (对原始 counts 使用)}
 
-\item{exclude_technical}{drop ^(MT-|MTRNR|RPL|RPS) before ranking (管线 step1 政策)}
+\item{exclude_technical}{drop ^(MT-|MTRNR|RPL|RPS) from RANKING only
+(管线 step1 政策: 技术基因不参与排名, 但保留在分母)}
 }
 \value{
 numeric vector, TMI per sample
 }
 \description{
 Transcriptomic Monopoly Index (TMI)
+}
+\details{
+v3.1.0 起分母恒为样本全部基因总和 (管线口径);
+  技术基因仅剔出排名. 与 v3.0 的绝对值不可直接比较 (v3.0 分母偏小, TMI 偏高).
 }

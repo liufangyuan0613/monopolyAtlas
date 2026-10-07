@@ -1,8 +1,9 @@
 # Core monopoly metrics (v3) — vectorized, sparse-aware.
-# 口径与 mono_v2 管线 step1/step2 一致:
-#   share_i = expr_i / sum(expr)  (列=样本)
+# 口径与 mono_v2 管线 step1/step2 一致 (v3.1.0 起钉死):
+#   share_i = expr_i / sum(expr)  (列=样本; 分母=样本全部基因总和)
 #   TMI(k) = sum(top-k shares)
-#   技术基因排除 = ^(MT-|MTRNR|RPL|RPS)  (排名/归一时可选剔除)
+#   技术基因 ^(MT-|MTRNR|RPL|RPS) 只剔出排名, 保留在分母 (管线 step1 政策)
+#   renormalize=TRUE = v3.0 遗留口径 (分母=非技术基因总和), 仅供对照, 勿用于主分析
 
 .as_matrix <- function(expr) {
   if (methods::is(expr, "sparseMatrix") || methods::is(expr, "Matrix")) return(expr)
@@ -19,25 +20,35 @@
 #' Top-k expression share per sample
 #' @param expr numeric matrix (genes x samples), sparse supported
 #' @param k number of top genes (default 5, 与正文 TMI5 一致)
-#' @param exclude_technical drop ^(MT-|MTRNR|RPL|RPS) before ranking (管线 step1 政策)
-#' @param renormalize re-normalize after exclusion (管线: 剔除后按剩余总和重归一)
+#' @param exclude_technical drop ^(MT-|MTRNR|RPL|RPS) from RANKING only
+#'   (管线 step1 政策: 技术基因不参与排名, 但保留在分母)
+#' @param renormalize legacy v3.0 behavior: 剔除后按剩余(非技术)基因总和重归一.
+#'   默认 FALSE = 管线口径 (分母=全部基因总和); TRUE 仅供与 v3.0 对照
 #' @return numeric vector of top-k shares per sample (0-1)
 #' @export
-top_share <- function(expr, k = 5, exclude_technical = TRUE, renormalize = TRUE) {
+top_share <- function(expr, k = 5, exclude_technical = TRUE, renormalize = FALSE) {
   expr <- .as_matrix(expr)
   if (is.null(rownames(expr))) stop("expr must have rownames (gene symbols)")
-  if (exclude_technical) {
-    keep <- !grepl("^(MT-|MTRNR|RPL|RPS)", rownames(expr))
-    expr <- expr[keep, , drop = FALSE]
-  }
   cs <- .col_sums(expr)
   cs[cs <= 0] <- NA_real_
+  keep <- rep(TRUE, nrow(expr))
+  if (exclude_technical) {
+    keep <- !grepl("^(MT-|MTRNR|RPL|RPS)", rownames(expr))
+    if (renormalize) {
+      # legacy: 分母改为非技术基因总和
+      expr <- expr[keep, , drop = FALSE]
+      cs <- .col_sums(expr)
+      cs[cs <= 0] <- NA_real_
+      keep <- rep(TRUE, nrow(expr))
+    }
+  }
   share <- expr
   if (methods::is(share, "sparseMatrix")) {
     share <- Matrix::t(Matrix::t(share) / cs)
   } else {
     share <- sweep(expr, 2, cs, "/")
   }
+  share <- share[keep, , drop = FALSE]
   k <- min(k, nrow(share))
   out <- vapply(seq_len(ncol(share)), function(j) {
     x <- share[, j]
@@ -54,6 +65,8 @@ top_share <- function(expr, k = 5, exclude_technical = TRUE, renormalize = TRUE)
 #' @inheritParams top_share
 #' @param normalize library-size normalize to pseudo-CPM first (对原始 counts 使用)
 #' @return numeric vector, TMI per sample
+#' @details v3.1.0 起分母恒为样本全部基因总和 (管线口径);
+#'   技术基因仅剔出排名. 与 v3.0 的绝对值不可直接比较 (v3.0 分母偏小, TMI 偏高).
 #' @export
 compute_tmi <- function(expr, k = 5, normalize = FALSE, exclude_technical = TRUE) {
   expr <- .as_matrix(expr)
@@ -123,6 +136,9 @@ score_monopoly <- function(expr, k_top = 5) {
                         mono = monopoly_status(tmi), row.names = NULL)
   cs <- .col_sums(expr); cs[cs <= 0] <- NA_real_
   share <- if (methods::is(expr, "sparseMatrix")) Matrix::t(Matrix::t(expr) / cs) else sweep(expr, 2, cs, "/")
+  # 技术基因不参与 top-k 排名 (管线口径, v3.1.0 起); 分母保持全基因总和
+  keep <- !grepl("^(MT-|MTRNR|RPL|RPS)", rownames(share))
+  share <- share[keep, , drop = FALSE]
   cnt <- setNames(integer(nrow(share)), rownames(share))
   frac_sum <- setNames(numeric(nrow(share)), rownames(share))
   for (j in seq_len(ncol(share))) {

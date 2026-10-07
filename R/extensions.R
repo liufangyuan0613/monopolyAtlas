@@ -37,9 +37,11 @@ simulate_share_null <- function(n_genes = 20000, n_samples = 200, shape = 0.5, s
 #' @param expr genes x cells 矩阵 (稀疏支持)
 #' @param carriers carrier 基因集 (如 atlas_genes$gene)
 #' @param groups 每细胞分组 (celltype 等), 长度=ncol(expr)
+#' @param exclude_technical 技术基因 ^(MT-|MTRNR|RPL|RPS) 剔出 top1 排名 (保留在分母,
+#'   管线口径, v3.1.0 起). scRNA 场景建议自行再剔 MALAT1/NEAT1 后传入.
 #' @return data.frame: group, n_cells, carrier_top1_rate, carrier_share_median
 #' @export
-carrier_dominance <- function(expr, carriers, groups) {
+carrier_dominance <- function(expr, carriers, groups, exclude_technical = TRUE) {
   expr <- if (is.data.frame(expr)) as.matrix(expr) else expr
   if (is.null(rownames(expr))) stop("expr must have rownames")
   stopifnot(length(groups) == ncol(expr))
@@ -49,7 +51,10 @@ carrier_dominance <- function(expr, carriers, groups) {
   cs[cs <= 0] <- NA_real_
   share <- if (methods::is(expr, "sparseMatrix")) Matrix::t(Matrix::t(expr) / cs) else sweep(expr, 2, cs, "/")
   gidx <- match(keep, rownames(share))
-  top1 <- apply(share, 2, function(x) rownames(share)[which.max(x)])
+  # top1 排名剔技术基因 (分母不变, 管线口径)
+  rank_rows <- if (exclude_technical) !grepl("^(MT-|MTRNR|RPL|RPS)", rownames(share)) else rep(TRUE, nrow(share))
+  rank_share <- share[rank_rows, , drop = FALSE]
+  top1 <- apply(rank_share, 2, function(x) rownames(rank_share)[which.max(x)])
   cshare <- if (methods::is(share, "sparseMatrix")) Matrix::colSums(share[gidx, , drop = FALSE]) else colSums(share[gidx, , drop = FALSE])
   df <- data.frame(group = groups, top1 = top1, carrier_share = as.numeric(cshare))
   do.call(rbind, lapply(split(df, df$group), function(s) {

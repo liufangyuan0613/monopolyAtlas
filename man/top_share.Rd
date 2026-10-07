@@ -4,16 +4,18 @@
 \alias{top_share}
 \title{Top-k expression share per sample}
 \usage{
-top_share(expr, k = 5, exclude_technical = TRUE, renormalize = TRUE)
+top_share(expr, k = 5, exclude_technical = TRUE, renormalize = FALSE)
 }
 \arguments{
 \item{expr}{numeric matrix (genes x samples), sparse supported}
 
 \item{k}{number of top genes (default 5, 与正文 TMI5 一致)}
 
-\item{exclude_technical}{drop ^(MT-|MTRNR|RPL|RPS) before ranking (管线 step1 政策)}
+\item{exclude_technical}{drop ^(MT-|MTRNR|RPL|RPS) from RANKING only
+(管线 step1 政策: 技术基因不参与排名, 但保留在分母)}
 
-\item{renormalize}{re-normalize after exclusion (管线: 剔除后按剩余总和重归一)}
+\item{renormalize}{legacy v3.0 behavior: 剔除后按剩余(非技术)基因总和重归一.
+默认 FALSE = 管线口径 (分母=全部基因总和); TRUE 仅供与 v3.0 对照}
 }
 \value{
 numeric vector of top-k shares per sample (0-1)

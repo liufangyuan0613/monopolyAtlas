@@ -4,7 +4,7 @@
 \alias{carrier_dominance}
 \title{单细胞/单点垄断摘要: 每组 carrier 主导率 (Fig3 FTL-myeloid 型分析)}
 \usage{
-carrier_dominance(expr, carriers, groups)
+carrier_dominance(expr, carriers, groups, exclude_technical = TRUE)
 }
 \arguments{
 \item{expr}{genes x cells 矩阵 (稀疏支持)}
@@ -12,6 +12,9 @@ carrier_dominance(expr, carriers, groups)
 \item{carriers}{carrier 基因集 (如 atlas_genes$gene)}
 
 \item{groups}{每细胞分组 (celltype 等), 长度=ncol(expr)}
+
+\item{exclude_technical}{技术基因 ^(MT-|MTRNR|RPL|RPS) 剔出 top1 排名 (保留在分母,
+管线口径, v3.1.0 起). scRNA 场景建议自行再剔 MALAT1/NEAT1 后传入.}
 }
 \value{
 data.frame: group, n_cells, carrier_top1_rate, carrier_share_median

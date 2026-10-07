@@ -1,7 +1,7 @@
 Package: monopolyAtlas
 Type: Package
 Title: Transcriptomic Monopoly Analysis Framework
-Version: 3.0.0
+Version: 3.1.0
 Authors@R: c(person("Fangyuan", "Liu", email = "liufangyuan1989@126.com", role = c("aut", "cre")))
 Description: Compute transcriptomic monopoly metrics (TMI, top-share, Gini, HHI) from
     bulk and single-cell expression matrices, query the pan-cancer monopoly atlas

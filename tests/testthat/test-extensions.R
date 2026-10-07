@@ -29,6 +29,19 @@ test_that("carrier_dominance reproduces group-level carrier rates", {
   expect_equal(dom$carrier_top1_rate[dom$group == "Myeloid"], 0.5)   # 一半 WFDC2 一半 OTHER
 })
 
+test_that("carrier_dominance excludes technical genes from top1 ranking (kept in denominator)", {
+  # MT 主导的细胞: 剔除后 top1 应为 carrier
+  m <- matrix(c(300, 80, 5, 300, 5, 70), nrow = 3)
+  rownames(m) <- c("MT-CO1", "WFDC2", "FTL"); colnames(m) <- c("c1", "c2")
+  groups <- c("Malignant", "Malignant")
+  dom <- carrier_dominance(m, carriers = c("WFDC2", "FTL"), groups = groups)
+  expect_equal(dom$carrier_top1_rate[dom$group == "Malignant"], 1)   # MT 被剔出排名
+  # 不剔除时 top1=MT-CO1, carrier rate=0 (对照证明剔除生效)
+  dom0 <- carrier_dominance(m, carriers = c("WFDC2", "FTL"), groups = groups,
+                            exclude_technical = FALSE)
+  expect_equal(dom0$carrier_top1_rate[dom0$group == "Malignant"], 0)
+})
+
 test_that("morans_i_perm detects clustered vs random patterns", {
   set.seed(1)
   coords <- expand.grid(x = 1:12, y = 1:12)

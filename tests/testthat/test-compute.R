@@ -8,11 +8,28 @@ test_that("top_share computes TMI5 correctly on toy matrix", {
   expect_equal(unname(top_share(m, k = 5, exclude_technical = FALSE)[2]), 5 / 6, tolerance = 1e-9)
 })
 
-test_that("technical genes excluded per pipeline policy", {
+test_that("technical genes excluded from ranking, kept in denominator (pipeline policy)", {
   m <- matrix(c(90, 10, 5, 5), nrow = 2)
   rownames(m) <- c("MT-CO1", "IGHG1"); colnames(m) <- c("S1", "S2")
-  # 剔除 MT- 后只剩 IGHG1: share=1
-  expect_equal(unname(top_share(m, k = 5, exclude_technical = TRUE)[1]), 1, tolerance = 1e-9)
+  # 管线口径: 分母=全基因总和; MT- 只剔出排名
+  # S1: cs=100, IGHG1 share=0.1; S2: cs=10, IGHG1 share=0.5
+  expect_equal(unname(top_share(m, k = 5, exclude_technical = TRUE)[1]), 0.1, tolerance = 1e-9)
+  expect_equal(unname(top_share(m, k = 5, exclude_technical = TRUE)[2]), 0.5, tolerance = 1e-9)
+  # 遗留口径 (renormalize=TRUE): 分母=非技术基因总和 -> share=1
+  expect_equal(unname(top_share(m, k = 5, exclude_technical = TRUE, renormalize = TRUE)[1]), 1,
+               tolerance = 1e-9)
+})
+
+test_that("compute_tmi matches manual pipeline computation (denominator = total sum)", {
+  # 模拟真实构成: 30% 技术基因 + 5 个非技术基因
+  m <- matrix(c(300, 100, 80, 60, 40, 20,
+                150, 50, 40, 30, 20, 10), nrow = 6)
+  rownames(m) <- c("RPL1", "A", "B", "C", "D", "E"); colnames(m) <- c("S1", "S2")
+  # 管线手算: 分母 S1=600, top5 非技术=(100+80+60+40+20)/600=0.5; S2: 分母=300, top5=150/300=0.5
+  expect_equal(unname(compute_tmi(m, k = 5)[1]), 0.5, tolerance = 1e-9)
+  expect_equal(unname(compute_tmi(m, k = 5)[2]), 0.5, tolerance = 1e-9)
+  # k=3: S1 (100+80+60)/600=0.4; S2 (50+40+30)/300=0.4
+  expect_equal(unname(compute_tmi(m, k = 3)[1]), 0.4, tolerance = 1e-9)
 })
 
 test_that("monopoly_status uses 95th percentile within cohort", {
